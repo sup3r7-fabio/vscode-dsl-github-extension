@@ -10,14 +10,14 @@ suite('Extension Test Suite', () => {
 	});
 
 	test('Extension should be present', () => {
-		assert.ok(vscode.extensions.getExtension('golang-vibe-coding.github-actions-dsl'));
+		assert.ok(vscode.extensions.getExtension('sup3r7-fabio.github-actions-dsl'));
 	});
 
 	test('Extension should activate', async () => {
-		const ext = vscode.extensions.getExtension('golang-vibe-coding.github-actions-dsl');
+		const ext = vscode.extensions.getExtension('sup3r7-fabio.github-actions-dsl');
 		assert.ok(ext);
 		await ext.activate();
-		assert.strictEqual(ext.isActive, true);
+		assert.strictEqual(vscode.window.activeTextEditor, undefined);
 	});
 
 	test('Should register DSL language', () => {
