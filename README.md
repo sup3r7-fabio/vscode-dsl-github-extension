@@ -1,6 +1,6 @@
-# GitHub Actions DSL - VSCode Extension
+# Sup3r7 GitHub Actions DSL Syntax Highlighting - VSCode Extension
 
-A comprehensive Visual Studio Code extension that provides advanced language support and debugging capabilities for GitHub Actions DSL files.
+A Visual Studio Code extension that provides language support and debugging capabilities for GitHub Actions DSL files (.dsl extension).
 
 ## Features
 
@@ -33,16 +33,22 @@ A comprehensive Visual Studio Code extension that provides advanced language sup
 
 ## Installation
 
-### From Source
-1. Clone the repository
-2. Navigate to the `vscode-extension` directory
-3. Run `npm install`
-4. Run `npm run compile`
-5. Open VSCode and press `F5` to launch extension development host
+### From VS Code Marketplace
+1. Open VS Code
+2. Go to Extensions (Ctrl+Shift+X)
+3. Search for "GitHub Actions DSL"
+4. Click Install
 
 ### From VSIX Package
-1. Build the extension: `npm run package`
+1. Download the latest `.vsix` file from releases
 2. Install in VSCode: `code --install-extension github-actions-dsl-1.0.0.vsix`
+
+### From Source (Development)
+1. Clone the repository: `git clone https://github.com/sup3r7-fabio/vscode-dsl-github-extension.git`
+2. Navigate to the directory: `cd vscode-dsl-github-extension`
+3. Install dependencies: `npm install`
+4. Compile: `npm run compile`
+5. Open in VSCode and press `F5` to launch extension development host
 
 ## Usage
 
@@ -127,49 +133,69 @@ The extension automatically associates `.dsl` files with the GitHub Actions DSL 
 ## Requirements
 
 ### Prerequisites
-1. **Go Environment**: Go 1.19+ installed
-2. **DSL Parser**: The main DSL parser project built
-3. **DAP Server**: The `dsl-dap` executable built
+- **Visual Studio Code**: Version 1.74.0 or higher
+- **Node.js**: For development and building from source
 
-### Building Dependencies
-```bash
-# Build the main DSL parser
-go build -o bin/golang-vibe-coding .
-
-# Build the DAP server
-go build -o bin/dsl-dap ./cmd/dap
-
-# Verify builds
-ls bin/
-```
+### Dependencies
+This extension includes all necessary dependencies and doesn't require external tools to function.
 
 ## Architecture
 
 ### Extension Components
-- **Main Extension** (`extension.ts`): Core functionality and command registration
-- **Debug Adapter** (`debugAdapter.ts`): DAP integration and communication
-- **Language Features**: Completion, hover, and validation providers
-- **Syntax Grammar** (`dsl.tmGrammar.json`): TextMate grammar for highlighting
+- **Main Extension** (`src/extension.ts`): Core functionality and command registration
+- **Debug Adapter** (`src/debugAdapter.ts`): DAP integration and communication
+- **Language Configuration** (`language-configuration.json`): Language behavior settings
+- **Syntax Grammar** (`syntaxes/dsl.tmGrammar.json`): TextMate grammar for highlighting
 
-### Integration Flow
+### File Structure
 ```
-VSCode Extension → DAP Adapter → TCP Connection → Go DAP Server → DSL Parser
+vscode-extension/
+├── src/
+│   ├── extension.ts          # Main extension logic
+│   ├── debugAdapter.ts       # Debug adapter implementation
+│   └── test/                 # Test suite
+├── syntaxes/
+│   └── dsl.tmGrammar.json   # Syntax highlighting rules
+├── language-configuration.json # Language settings
+├── package.json             # Extension manifest
+└── README.md                # This file
 ```
 
 ## Development
 
 ### Extension Development
-1. Clone the repository
-2. Navigate to `vscode-extension/`
-3. Run `npm install`
-4. Press `F5` to launch extension development host
-5. Open a `.dsl` file to test features
+1. Clone the repository: `git clone https://github.com/sup3r7-fabio/vscode-dsl-github-extension.git`
+2. Navigate to the directory: `cd vscode-dsl-github-extension`
+3. Install dependencies: `npm install`
+4. Compile TypeScript: `npm run compile`
+5. Press `F5` to launch extension development host
+6. Open a `.dsl` file to test features
+
+### Testing the Extension
+The extension includes a comprehensive test suite:
+```bash
+npm test              # Run all tests using VS Code Test CLI
+npm run test:manual   # Run tests using custom runner
+```
 
 ### Debugging the Extension
-1. Set breakpoints in TypeScript files
-2. Use the Extension Development Host
+1. Set breakpoints in TypeScript files (`src/*.ts`)
+2. Use the Extension Development Host (F5)
 3. Check the Debug Console for logs
 4. Use "Developer: Reload Window" to reload changes
+5. View test results and coverage reports
+
+### Building and Testing
+
+Available npm scripts:
+```bash
+npm run compile        # Compile TypeScript to JavaScript
+npm run watch         # Watch mode for development
+npm run lint          # Run ESLint on source code
+npm test             # Run extension tests
+npm run package      # Build VSIX package
+npm run publish      # Publish to marketplace
+```
 
 ### Building VSIX Package
 ```bash
@@ -181,15 +207,28 @@ npm run package
 
 ```yaml
 # example.dsl
-name: CI/CD Pipeline
-on: [push, pull_request]
+name: Test Workflow with Advanced Features
+on: 
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '18'
+  BUILD_TYPE: production
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       
       - name: Run Tests
         run: npm test
@@ -212,10 +251,10 @@ jobs:
 - Reload window: `Ctrl+Shift+P` → "Developer: Reload Window"
 
 #### Debugging Not Working
-- Verify DAP server is built: `ls bin/dsl-dap*`
 - Check DAP server port is available: `netstat -an | findstr 4711`
 - Enable verbose logging in settings
 - Check Debug Console for error messages
+- Ensure extension is properly compiled: `npm run compile`
 
 #### Auto-completion Not Working
 - Ensure cursor is in valid context (after keywords)
@@ -239,17 +278,15 @@ Enable verbose logging:
 
 ## License
 
-This extension is part of the golang-vibe-coding DSL project and follows the same license terms.
+See the LICENSE file for license terms.
 
 ## Support
 
-- 📖 Documentation: See project README and guides
-- 🐛 Issues: Report bugs in the project repository
-- 💬 Discussions: Use GitHub Discussions for questions
+- 📖 Documentation: See this README and inline documentation
+- 🐛 Issues: Report bugs at [GitHub Issues](https://github.com/sup3r7-fabio/vscode-dsl-github-extension/issues)
+- 💬 Discussions: Use [GitHub Discussions](https://github.com/sup3r7-fabio/vscode-dsl-github-extension/discussions) for questions
 
 ## Related
 
-- [GitHub Actions DSL Parser](https://github.com/golang-vibe-coding/golang-vibe-coding/blob/main/README.md)
-- [Debug Guide](https://github.com/golang-vibe-coding/golang-vibe-coding/blob/main/DEBUG_GUIDE.md)  
-- [VSCode Debug Guide](https://github.com/golang-vibe-coding/golang-vibe-coding/blob/main/VSCODE_DEBUG_GUIDE.md)
-- [Implementation Summary](https://github.com/golang-vibe-coding/golang-vibe-coding/blob/main/DEBUGGER_IMPLEMENTATION_SUMMARY.md)
+- [Repository](https://github.com/sup3r7-fabio/vscode-dsl-github-extension)
+- [VS Code Extension Marketplace](https://marketplace.visualstudio.com/publishers/sup3r7-fabio)

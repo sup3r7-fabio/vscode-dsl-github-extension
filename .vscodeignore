@@ -1,0 +1,30 @@
+# Source files
+src/**
+*.ts
+*.map
+tsconfig.json
+
+# Dependencies
+node_modules/**
+.gitignore
+.git/**
+
+# Development files
+.vscode/**
+*.vsix
+.github/**
+
+# Test files
+test/**
+test-workspace/**
+*.test.*
+.vscode-test.js
+coverage/**
+
+# Documentation that shouldn't be in the package
+EXTENSION_SUMMARY.md
+INSTALLATION_GUIDE.md
+example.dsl
+
+# Build artifacts
+out/**/*.map

@@ -1,0 +1,86 @@
+name: Pre-release
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - '.vscodeignore'
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.x
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Lint
+      run: npm run lint
+      
+    - name: Compile
+      run: npm run compile
+      
+    - name: Run tests (Linux)
+      run: xvfb-run -a npm test
+      if: runner.os == 'Linux'
+      
+    - name: Run tests (macOS/Windows)
+      run: npm test
+      if: runner.os != 'Linux'
+
+  pre-release:
+    needs: test
+    runs-on: ubuntu-latest
+    if: success() && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Compile
+        run: npm run compile
+        
+      - name: Generate pre-release version
+        id: version
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          PRERELEASE_VERSION="${PACKAGE_VERSION}-beta.$(date +%Y%m%d%H%M%S)"
+          echo "version=${PRERELEASE_VERSION}" >> $GITHUB_OUTPUT
+          npm version ${PRERELEASE_VERSION} --no-git-tag-version
+          
+      - name: Package pre-release
+        run: npm run package
+        
+      - name: Upload pre-release VSIX
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-prerelease-${{ steps.version.outputs.version }}
+          path: '*.vsix'
+          
+      - name: Publish pre-release to marketplace
+        run: npm run deploy -- --pre-release
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        if: github.event_name != 'workflow_dispatch'
